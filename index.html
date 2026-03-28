@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash of Clans — Clan Dashboard</title>
+    <meta name="description" content="Clan War League dashboard — register for tournaments, view updates, and manage your clan.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">Clan Dashboard</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#dashboard" class="active">Dashboard</a></li>
+                <li><a href="#tournaments">Tournaments</a></li>
+                <li><a href="#members">Members</a></li>
+                <li><a href="#updates">Updates</a></li>
+                <li><a href="#rules">Rules</a></li>
+                <li><a href="#admin" class="nav-admin-btn" id="navAdminBtn">🔐 Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <section class="dashboard" id="dashboard">
+        <div class="dashboard-hero">
+            <div class="hero-particles" id="heroParticles"></div>
+            <div class="dashboard-hero-content">
+                <div class="hero-badge">🏆 Clan War League Season</div>
+                <h1 class="hero-title">Clan Dashboard</h1>
+                <p class="hero-desc">Welcome, Chief! Register for tournaments, check updates, and stay battle-ready.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="dashboard-cards">
+                <div class="dash-card" id="dashTournaments">
+                    <div class="dash-card-icon">🏆</div>
+                    <div class="dash-card-info">
+                        <span class="dash-card-number" id="activeTournaments">0</span>
+                        <span class="dash-card-label">Active Tournaments</span>
+                    </div>
+                </div>
+                <div class="dash-card" id="dashMembers">
+                    <div class="dash-card-icon">👥</div>
+                    <div class="dash-card-info">
+                        <span class="dash-card-number" id="totalRegistered">0</span>
+                        <span class="dash-card-label">Total Registered</span>
+                    </div>
+                </div>
+                <div class="dash-card" id="dashUpdates">
+                    <div class="dash-card-icon">📢</div>
+                    <div class="dash-card-info">
+                        <span class="dash-card-number" id="totalUpdates">0</span>
+                        <span class="dash-card-label">Announcements</span>
+                    </div>
+                </div>
+                <div class="dash-card" id="dashSlots">
+                    <div class="dash-card-icon">🎯</div>
+                    <div class="dash-card-info">
+                        <span class="dash-card-number" id="totalSlots">0</span>
+                        <span class="dash-card-label">Open Slots</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TOURNAMENTS ==================== -->
+    <section class="section tournaments" id="tournaments">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">🏆 Compete</span>
+                <h2 class="section-title">Upcoming Tournaments</h2>
+                <p class="section-desc">Register for active tournaments below. Open to all clan members!</p>
+            </div>
+
+            <div class="tournaments-grid" id="tournamentsGrid">
+                <div class="empty-state" id="emptyTournaments">
+                    <div class="empty-icon">🏰</div>
+                    <h3>No Tournaments Yet</h3>
+                    <p>Admin will add tournaments soon. Check back later!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== REGISTRATION MODAL ==================== -->
+    <div class="modal-overlay" id="regModal">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-header">
+                <h2>⚔️ Register for Tournament</h2>
+                <p class="modal-tournament-name" id="modalTournamentName"></p>
+            </div>
+            <form class="reg-form" id="regForm">
+                <input type="hidden" id="regTournamentId">
+                <div class="form-group">
+                    <label for="playerName">Player Name</label>
+                    <input type="text" id="playerName" placeholder="e.g. DragonSlayer" required>
+                </div>
+                <div class="form-group">
+                    <label for="playerTag">Player Tag</label>
+                    <input type="text" id="playerTag" placeholder="e.g. #2YGP0CQRL" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="thLevel">Town Hall Level</label>
+                        <select id="thLevel" required>
+                            <option value="">Select TH</option>
+                            <option value="17">TH 17</option>
+                            <option value="16">TH 16</option>
+                            <option value="15">TH 15</option>
+                            <option value="14">TH 14</option>
+                            <option value="13">TH 13</option>
+                            <option value="12">TH 12</option>
+                            <option value="11">TH 11</option>
+                            <option value="10">TH 10</option>
+                            <option value="9">TH 9</option>
+                            <option value="8">TH 8 & Below</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cwlType">CWL Type</label>
+                        <select id="cwlType" required>
+                            <option value="">Select CWL Type</option>
+                            <option value="Serious CWL">Serious CWL</option>
+                            <option value="Lazy CWL">Lazy CWL</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-register" id="btnRegister">
+                    <span>⚔️ Confirm Registration</span>
+                </button>
+                <div class="form-message" id="formMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== REGISTERED MEMBERS ==================== -->
+    <section class="section members" id="members">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">👥 Roster</span>
+                <h2 class="section-title">Registered Members</h2>
+                <p class="section-desc">All members registered across tournaments.</p>
+            </div>
+            <div class="members-filter">
+                <label for="filterTournament">Filter by Tournament:</label>
+                <select id="filterTournament">
+                    <option value="all">All Tournaments</option>
+                </select>
+            </div>
+            <div class="members-toolbar">
+                <div class="member-count">
+                    <span class="count-badge" id="countBadge">0</span> members registered
+                </div>
+                <div class="toolbar-actions">
+                    <button class="btn-sort" id="btnSort" title="Sort by TH Level">Sort by TH ↕</button>
+                </div>
+            </div>
+            <div class="members-table-wrapper">
+                <table class="members-table" id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Player Name</th>
+                            <th>Player Tag</th>
+                            <th>TH Level</th>
+                            <th>Tournament</th>
+                            <th>CWL Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                    </tbody>
+                </table>
+                <div class="empty-state" id="membersEmpty" style="display:none;">
+                    <div class="empty-icon">🏰</div>
+                    <h3>No Registrations Yet</h3>
+                    <p>Register for a tournament to see your name here!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== IMPORTANT UPDATES ==================== -->
+    <section class="section updates" id="updates">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">📢 News</span>
+                <h2 class="section-title">Important Updates</h2>
+                <p class="section-desc">Latest announcements from the clan leadership.</p>
+            </div>
+            <div class="updates-grid" id="updatesGrid">
+                <div class="empty-state" id="emptyUpdates">
+                    <div class="empty-icon">📝</div>
+                    <h3>No Updates Yet</h3>
+                    <p>Admin will post updates here.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CLAN RULES ==================== -->
+    <section class="section rules" id="rules">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">📜 Guidelines</span>
+                <h2 class="section-title">Clan Rules</h2>
+                <p class="section-desc">Follow these rules to keep the clan strong and united.</p>
+            </div>
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <div class="rule-number">01</div>
+                    <h3>Use All War Attacks</h3>
+                    <p>Always use both attacks in war/CWL. Missing attacks = demotion and possible kick.</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">02</div>
+                    <h3>Respect All Members</h3>
+                    <p>No toxic behavior, racism, or bullying. Keep the chat friendly and supportive.</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">03</div>
+                    <h3>Donate Actively</h3>
+                    <p>Maintain a healthy donation ratio. Always donate what is requested.</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">04</div>
+                    <h3>Stay Active</h3>
+                    <p>Inactive players (7+ days) without notice will be removed.</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">05</div>
+                    <h3>Follow War Plan</h3>
+                    <p>Attack your assigned target in war. Coordinate with co-leaders.</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">06</div>
+                    <h3>Join Discord</h3>
+                    <p>Discord is mandatory for war planning and coordination.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ADMIN SECTION ==================== -->
+    <section class="section admin-section" id="admin">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">🔐 Admin</span>
+                <h2 class="section-title">Clan Leadership Panel</h2>
+                <p class="section-desc">Login to manage tournaments, updates, and members.</p>
+            </div>
+
+            <!-- ADMIN LOGIN -->
+            <div class="admin-login-box" id="adminLoginBox">
+                <div class="login-card">
+                    <div class="login-icon">🛡️</div>
+                    <h3>Admin Login</h3>
+                    <p>Only clan leaders can access this panel.</p>
+                    <form id="adminLoginForm">
+                        <div class="form-group">
+                            <label for="adminUser">Username</label>
+                            <input type="text" id="adminUser" placeholder="Admin username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPass">Password</label>
+                            <input type="password" id="adminPass" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn-admin-login">🔓 Login</button>
+                        <div class="form-message" id="adminLoginMessage"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ADMIN PANEL (hidden until login) -->
+            <div class="admin-panel" id="adminPanel" style="display:none;">
+                <div class="admin-header">
+                    <h3>Welcome, Admin! 👑</h3>
+                    <button class="btn-logout" id="btnLogout">Logout</button>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="tabTournaments">🏆 Tournaments</button>
+                    <button class="admin-tab" data-tab="tabUpdates">📢 Updates</button>
+                    <button class="admin-tab" data-tab="tabManageMembers">👥 Members</button>
+                </div>
+
+                <!-- TAB: Tournaments -->
+                <div class="admin-tab-content active" id="tabTournaments">
+                    <div class="admin-form-card">
+                        <h4>Create New Tournament</h4>
+                        <form id="addTournamentForm">
+                            <div class="form-group">
+                                <label for="tName">Tournament Name</label>
+                                <input type="text" id="tName" placeholder="e.g. CWL April 2026" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tDate">Start Date</label>
+                                    <input type="date" id="tDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tSlots">Max Slots</label>
+                                    <input type="number" id="tSlots" value="50" min="1" max="100" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tDesc">Description</label>
+                                <textarea id="tDesc" rows="3" placeholder="Tournament details, rules, etc."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tMinTH">Minimum TH Level</label>
+                                    <select id="tMinTH">
+                                        <option value="8">TH 8</option>
+                                        <option value="9">TH 9</option>
+                                        <option value="10">TH 10</option>
+                                        <option value="11" selected>TH 11</option>
+                                        <option value="12">TH 12</option>
+                                        <option value="13">TH 13</option>
+                                        <option value="14">TH 14</option>
+                                        <option value="15">TH 15</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tStatus">Status</label>
+                                    <select id="tStatus">
+                                        <option value="open">Open for Registration</option>
+                                        <option value="closed">Closed</option>
+                                        <option value="upcoming">Upcoming</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-register"><span>➕ Create Tournament</span></button>
+                        </form>
+                    </div>
+                    <h4 class="admin-list-title">Existing Tournaments</h4>
+                    <div class="admin-list" id="adminTournamentsList"></div>
+                </div>
+
+                <!-- TAB: Updates -->
+                <div class="admin-tab-content" id="tabUpdates">
+                    <div class="admin-form-card">
+                        <h4>Post New Update</h4>
+                        <form id="addUpdateForm">
+                            <div class="form-group">
+                                <label for="uTitle">Title</label>
+                                <input type="text" id="uTitle" placeholder="e.g. CWL Registration Open!" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="uCategory">Category</label>
+                                <select id="uCategory">
+                                    <option value="cwl">CWL</option>
+                                    <option value="war">War</option>
+                                    <option value="donate">Donations</option>
+                                    <option value="event">Event</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="uContent">Content</label>
+                                <textarea id="uContent" rows="4" placeholder="Write your announcement..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="uPinned"> 📌 Pin this update
+                                </label>
+                            </div>
+                            <button type="submit" class="btn-register"><span>📢 Post Update</span></button>
+                        </form>
+                    </div>
+                    <h4 class="admin-list-title">Posted Updates</h4>
+                    <div class="admin-list" id="adminUpdatesList"></div>
+                </div>
+
+                <!-- TAB: Members -->
+                <div class="admin-tab-content" id="tabManageMembers">
+                    <h4 class="admin-list-title">All Registered Members</h4>
+                    <p class="admin-hint">Remove members from tournament rosters as needed.</p>
+                    <div class="admin-list" id="adminMembersList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="footer-logo">⚔️ Clan Dashboard</span>
+                    <p>Dominate every Clan War League season. Coordinate. Strategize. Conquer.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="#tournaments">Tournaments</a>
+                    <a href="#members">Members</a>
+                    <a href="#updates">Updates</a>
+                    <a href="#rules">Rules</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Community</h4>
+                    <a href="#">Discord Server</a>
+                    <a href="#">Clash of Clans</a>
+                    <a href="#">Strategy Guide</a>
+                    <a href="#">Contact Leaders</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Clan Dashboard — Not affiliated with Supercell. Made for clan coordination.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
