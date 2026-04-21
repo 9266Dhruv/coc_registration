@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clash of Clans — Clan Dashboard</title>
     <meta name="description" content="Clan War League dashboard — register for tournaments, view updates, and manage your clan.">
+    <!-- DNS prefetch + preconnect for faster external resource loading -->
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    <link rel="dns-prefetch" href="https://clan-dashboard-default-rtdb.firebaseio.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <!-- Google Fonts — trimmed to only used weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Preload Firebase SDK -->
+    <link rel="preload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" as="script">
+    <link rel="preload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js" as="script">
 </head>
 <body>
     <!-- NAVBAR -->
@@ -26,7 +34,9 @@
                 <li><a href="#tournaments">Tournaments</a></li>
                 <li><a href="#members">Members</a></li>
                 <li><a href="#updates">Updates</a></li>
-                <li><a href="#rules">Rules</a></li>
+                <li><a href="#rules">CWL Rules</a></li>
+                <li><a href="#fwa">FWA Status</a></li>
+                <li><a href="#" id="navAnalyticsBtn" class="nav-analytics-btn">📊 Analytics</a></li>
                 <li><a href="#admin" class="nav-admin-btn" id="navAdminBtn">🔐 Admin</a></li>
             </ul>
         </div>
@@ -96,6 +106,32 @@
         </div>
     </section>
 
+    <!-- ==================== ANALYTICS LOGIN MODAL ==================== -->
+    <div class="modal-overlay" id="analyticsLoginModal">
+        <div class="modal analytics-login-modal">
+            <button class="modal-close" id="analyticsModalClose">✕</button>
+            <div class="modal-header" style="text-align:center">
+                <div style="font-size:3.5rem;margin-bottom:12px">📊</div>
+                <h2>Analytics Access</h2>
+                <p style="color:var(--text-mid);font-size:0.92rem;margin-top:6px">Admin login required to view analytics data.</p>
+            </div>
+            <form class="reg-form" id="analyticsLoginForm">
+                <div class="form-group">
+                    <label for="analyticsUser">Username</label>
+                    <input type="text" id="analyticsUser" placeholder="Admin username" required>
+                </div>
+                <div class="form-group">
+                    <label for="analyticsPass">Password</label>
+                    <input type="password" id="analyticsPass" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-register">
+                    <span>🔓 Login & View Analytics</span>
+                </button>
+                <div class="form-message" id="analyticsLoginMessage"></div>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== REGISTRATION MODAL ==================== -->
     <div class="modal-overlay" id="regModal">
         <div class="modal">
@@ -113,6 +149,14 @@
                 <div class="form-group">
                     <label for="playerTag">Player Tag</label>
                     <input type="text" id="playerTag" placeholder="e.g. #2YGP0CQRL" required>
+                </div>
+                <div class="form-group war-weight-group">
+                    <label for="warWeight">⚖️ War Weight</label>
+                    <div class="war-weight-display">
+                        <input type="text" id="warWeight" readonly placeholder="Enter tag to auto-fetch...">
+                        <span class="war-weight-status" id="warWeightStatus"></span>
+                    </div>
+                    <small class="war-weight-hint">Auto-fetched from FWA Stats when you enter your player tag</small>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -178,8 +222,10 @@
                             <th>Player Name</th>
                             <th>Player Tag</th>
                             <th>TH Level</th>
+                            <th>⚖️ War Weight</th>
                             <th>Tournament</th>
                             <th>CWL Type</th>
+                            <th>Allocated Clan</th>
                         </tr>
                     </thead>
                     <tbody id="membersTableBody">
@@ -212,44 +258,101 @@
         </div>
     </section>
 
-    <!-- ==================== CLAN RULES ==================== -->
+    <!-- ==================== FWA WAR STATUS ==================== -->
+    <section class="section fwa-status" id="fwa">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">⚔️ FWA</span>
+                <h2 class="section-title">Lose or Win War Status</h2>
+                <p class="section-desc">Check the current FWA points and war status.</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 5px; margin-bottom: 25px; color: var(--text-muted); font-size: 0.95rem; background: rgba(255, 165, 0, 0.1); padding: 10px; border-radius: 8px; border-left: 4px solid #ffa500;">
+                <strong>⚠️ Note:</strong> During CWL week, please do not refer to this status, as we may reverse the war alignment if needed.
+            </div>
+            
+            <div class="fwa-iframe-container" style="display: flex; justify-content: center; width: 100%; overflow: hidden; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px;">
+                <iframe data-src="https://points.fwafarm.com/clan?tag=RJC82J8Q" 
+                        width="100%" height="600" style="border: none; border-radius: 8px; max-width: 800px;"
+                        loading="lazy" title="FWA War Status">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CWL RULES ==================== -->
     <section class="section rules" id="rules">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">📜 Guidelines</span>
-                <h2 class="section-title">Clan Rules</h2>
-                <p class="section-desc">Follow these rules to keep the clan strong and united.</p>
+                <span class="section-tag">⚔️ CWL Guidelines</span>
+                <h2 class="section-title">CWL Rules</h2>
+                <p class="section-desc">Everything you need to know about our Lazy CWL format.</p>
             </div>
+
+            <!-- Announcement Banner -->
+            <div class="cwl-announcement">
+                <div class="cwl-announce-icon">📢</div>
+                <div class="cwl-announce-text">
+                    <h3>Hey guys, we've decided to make some changes in upcoming CWL's!</h3>
+                    <p class="cwl-announce-highlight">We're going to do <strong>Lazy CWL</strong> 🐼</p>
+                </div>
+            </div>
+
             <div class="rules-grid">
-                <div class="rule-card">
-                    <div class="rule-number">01</div>
-                    <h3>Use All War Attacks</h3>
-                    <p>Always use both attacks in war/CWL. Missing attacks = demotion and possible kick.</p>
+                <!-- What is Lazy CWL? -->
+                <div class="rule-card cwl-card-highlight">
+                    <div class="rule-number">❓</div>
+                    <h3>What Does Lazy CWL Mean?</h3>
+                    <p>Lazy CWL basically means doing <strong>CWL + FWA wars at the same time</strong> in 2 different clans. You play CWL in a separate clan while keeping FWA running in the home clan.</p>
                 </div>
+
+                <!-- Participant Rules -->
                 <div class="rule-card">
-                    <div class="rule-number">02</div>
-                    <h3>Respect All Members</h3>
-                    <p>No toxic behavior, racism, or bullying. Keep the chat friendly and supportive.</p>
+                    <div class="rule-number">📋</div>
+                    <h3>Things Every CWL Participant Must Know</h3>
+                    <ul class="cwl-rules-list">
+                        <li>We continue <strong>50v50 FWA WARS</strong> in home clan</li>
+                        <li>A new clan will be made for CWL — <strong>Clan Link will be sent 2 days before CWL</strong>. Bookmark it!</li>
+                        <li>Keep 💎 <strong>FWA BASE</strong> 💎 active throughout the time of CWL</li>
+                    </ul>
                 </div>
-                <div class="rule-card">
-                    <div class="rule-number">03</div>
-                    <h3>Donate Actively</h3>
-                    <p>Maintain a healthy donation ratio. Always donate what is requested.</p>
+
+                <!-- Benefits -->
+                <div class="rule-card cwl-card-benefits">
+                    <div class="rule-number">✅</div>
+                    <h3>Benefits of Lazy CWL</h3>
+                    <ul class="cwl-rules-list benefits">
+                        <li>You can do CWL with <strong>heroes down</strong></li>
+                        <li>You play in a <strong>higher league</strong> — extra medals!</li>
+                        <li><strong>3x loot</strong> from FWA + CWL combined</li>
+                        <li>Stress free — just aim for <strong>8 stars from 7 attacks</strong></li>
+                        <li>Experiment with <strong>all different kinds of attacks</strong> you want!</li>
+                    </ul>
                 </div>
-                <div class="rule-card">
-                    <div class="rule-number">04</div>
-                    <h3>Stay Active</h3>
-                    <p>Inactive players (7+ days) without notice will be removed.</p>
+
+                <!-- Disadvantages -->
+                <div class="rule-card cwl-card-drawbacks">
+                    <div class="rule-number">⚠️</div>
+                    <h3>Disadvantages of Lazy CWL</h3>
+                    <ul class="cwl-rules-list drawbacks">
+                        <li>You have to <strong>hop from home clan to CWL clan daily</strong> during CWL week</li>
+                        <li>We lose CWL rounds — but we <strong>benefit with more CWL medals</strong> in the end</li>
+                        <li>Opponents will be <strong>TH14/13 players</strong> — just get 8 stars from 7 attacks</li>
+                    </ul>
                 </div>
+
+                <!-- Important Notes -->
                 <div class="rule-card">
-                    <div class="rule-number">05</div>
-                    <h3>Follow War Plan</h3>
-                    <p>Attack your assigned target in war. Coordinate with co-leaders.</p>
+                    <div class="rule-number">🔗</div>
+                    <h3>Important Notes</h3>
+                    <p><strong>Clan Links</strong> will be sent <strong>48–36 hours prior</strong> to CWL beginning, along with a clan mail notification. Make sure you check announcements regularly!</p>
                 </div>
-                <div class="rule-card">
-                    <div class="rule-number">06</div>
-                    <h3>Join Discord</h3>
-                    <p>Discord is mandatory for war planning and coordination.</p>
+
+                <!-- Star Target -->
+                <div class="rule-card cwl-card-highlight">
+                    <div class="rule-number">🎯</div>
+                    <h3>Star Target</h3>
+                    <p>Your goal is simple — achieve a minimum of <strong>8 stars from 7 attacks</strong> across the CWL week. No pressure, just do your best and have fun experimenting!</p>
                 </div>
             </div>
         </div>
@@ -296,6 +399,7 @@
                     <button class="admin-tab active" data-tab="tabTournaments">🏆 Tournaments</button>
                     <button class="admin-tab" data-tab="tabUpdates">📢 Updates</button>
                     <button class="admin-tab" data-tab="tabManageMembers">👥 Members</button>
+                    <button class="admin-tab" data-tab="tabAnalytics">📊 Analytics</button>
                 </div>
 
                 <!-- TAB: Tournaments -->
@@ -388,9 +492,151 @@
 
                 <!-- TAB: Members -->
                 <div class="admin-tab-content" id="tabManageMembers">
-                    <h4 class="admin-list-title">All Registered Members</h4>
-                    <p class="admin-hint">Remove members from tournament rosters as needed.</p>
+                    <div class="admin-members-header">
+                        <div>
+                            <h4 class="admin-list-title" style="margin-bottom:4px">All Registered Members</h4>
+                            <p class="admin-hint" style="margin-bottom:0">Allocate clans to members and manage rosters. Clan assignment is admin-only.</p>
+                        </div>
+                        <button class="btn-download-csv" id="btnDownloadCSV" title="Download registration data as CSV">
+                            📥 Download CSV
+                        </button>
+                    </div>
                     <div class="admin-list" id="adminMembersList"></div>
+                </div>
+
+                <!-- TAB: Analytics -->
+                <div class="admin-tab-content" id="tabAnalytics">
+                    <div class="analytics-header">
+                        <h4 class="admin-list-title" style="margin-bottom:4px">📊 Visitor Analytics</h4>
+                        <p class="admin-hint" style="margin-bottom:0">Real-time visitor tracking — IP addresses, locations, and visit counts.</p>
+                    </div>
+
+                    <!-- Live Stats Cards -->
+                    <div class="analytics-stats-grid">
+                        <div class="analytics-stat-card stat-live">
+                            <div class="stat-icon-wrap">
+                                <span class="stat-icon">🟢</span>
+                                <span class="stat-pulse"></span>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="liveVisitors">0</span>
+                                <span class="stat-label">Live Now</span>
+                            </div>
+                        </div>
+                        <div class="analytics-stat-card stat-today">
+                            <div class="stat-icon-wrap">
+                                <span class="stat-icon">📅</span>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="todayVisitors">0</span>
+                                <span class="stat-label">Today's Visits</span>
+                            </div>
+                        </div>
+                        <div class="analytics-stat-card stat-total">
+                            <div class="stat-icon-wrap">
+                                <span class="stat-icon">🌐</span>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalVisitors">0</span>
+                                <span class="stat-label">All-Time Visits</span>
+                            </div>
+                        </div>
+                        <div class="analytics-stat-card stat-unique">
+                            <div class="stat-icon-wrap">
+                                <span class="stat-icon">👤</span>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="uniqueVisitors">0</span>
+                                <span class="stat-label">Unique Visitors</span>
+                            </div>
+                        </div>
+                        <div class="analytics-stat-card stat-logins">
+                            <div class="stat-icon-wrap">
+                                <span class="stat-icon">🔐</span>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalLogins">0</span>
+                                <span class="stat-label">Admin Logins</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Browser Breakdown -->
+                    <div class="analytics-locations-card">
+                        <h5>🌐 Browser Breakdown</h5>
+                        <div class="locations-list" id="browserBreakdownList">
+                            <p class="admin-hint">Loading browser data...</p>
+                        </div>
+                    </div>
+
+                    <!-- Top Locations -->
+                    <div class="analytics-locations-card">
+                        <h5>🗺️ Top Locations</h5>
+                        <div class="locations-list" id="topLocationsList">
+                            <p class="admin-hint">Loading location data...</p>
+                        </div>
+                    </div>
+
+                    <!-- Visitor Log Table -->
+                    <div class="analytics-table-header">
+                        <h5>📋 Visitor Log</h5>
+                        <div class="analytics-table-actions">
+                            <button class="btn-admin-action btn-admin-toggle" id="btnClearVisitors">🗑️ Clear All</button>
+                            <button class="btn-download-csv" id="btnDownloadVisitorCSV" style="padding:8px 16px;font-size:0.8rem">📥 Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="analytics-table-wrapper">
+                        <table class="analytics-table" id="visitorTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>IP Address</th>
+                                    <th>Location</th>
+                                    <th>Device</th>
+                                    <th>Page</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitorTableBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="visitorEmpty" style="display:none;">
+                            <div class="empty-icon">📊</div>
+                            <h3>No Visitors Yet</h3>
+                            <p>Visitor data will appear here once people start visiting.</p>
+                        </div>
+                    </div>
+                    <div class="analytics-pagination" id="visitorPagination"></div>
+
+                    <!-- Admin Login Log -->
+                    <div class="analytics-table-header" style="margin-top: 30px;">
+                        <h5>🔐 Admin Login History</h5>
+                        <div class="analytics-table-actions">
+                            <button class="btn-admin-action btn-admin-toggle" id="btnClearLogins">🗑️ Clear All</button>
+                        </div>
+                    </div>
+                    <div class="analytics-table-wrapper">
+                        <table class="analytics-table" id="loginTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>IP Address</th>
+                                    <th>Location</th>
+                                    <th>Device</th>
+                                    <th>Browser</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loginTableBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="loginEmpty" style="display:none;">
+                            <div class="empty-icon">🔐</div>
+                            <h3>No Login Records</h3>
+                            <p>Admin login attempts will appear here.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -409,18 +655,19 @@
                     <a href="#tournaments">Tournaments</a>
                     <a href="#members">Members</a>
                     <a href="#updates">Updates</a>
-                    <a href="#rules">Rules</a>
+                    <a href="#rules">CWL Rules</a>
                 </div>
                 <div class="footer-links">
                     <h4>Community</h4>
-                    <a href="#">Discord Server</a>
-                    <a href="#">Clash of Clans</a>
+                    <a href="https://discord.gg/Fdp3b2H5s" target="_blank" rel="noopener">Discord Server</a>
+                    <a href="https://link.clashofclans.com/en?action=OpenClanProfile&tag=RJC82J8Q" target="_blank" rel="noopener">Clash of Clans</a>
                     <a href="#">Strategy Guide</a>
                     <a href="#">Contact Leaders</a>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Clan Dashboard — Not affiliated with Supercell. Made for clan coordination.</p>
+                <p class="footer-credit">Created and managed by KD</p>
             </div>
         </div>
     </footer>
@@ -428,6 +675,11 @@
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
-    <script src="script.js"></script>
+    <!-- Firebase SDK (v9 compat) — async for non-blocking load -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+    <script src="script.js" defer></script>
+
 </body>
 </html>
