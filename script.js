@@ -8,9 +8,7 @@
     const $ = s => document.querySelector(s);
     const $$ = s => document.querySelectorAll(s);
 
-    // ========== FIREBASE CONFIG ==========
-    // 🔥 REPLACE THIS with your own Firebase config from:
-    // https://console.firebase.google.com → Project Settings → General → Your apps → Config
+    // ========== FIREBASE ==========
     const firebaseConfig = {
         apiKey: "AIzaSyAHOFCnC9NbMEICzP4RtXLQc3m5GU-eUpc",
         authDomain: "clan-dashboard.firebaseapp.com",
@@ -58,9 +56,13 @@
 
     // Storage keys
     const KEYS = { tournaments: 'clan_tournaments', members: 'clan_members', updates: 'clan_updates', admin: 'clan_admin_logged' };
-    // Default admin credentials (client-side only)
-    const ADMIN_USER = 'admin';
-    const ADMIN_PASS = 'clash2026';
+    const _AK = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
+    const _AP = 'df4b2ead662f5db4bc4cd1e708a180a8477da8d83dc08ecee2a82971ada0dd36';
+
+    async function hashSHA256(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     // In-memory cache (syncs with Firebase in real-time)
     let cache = {
@@ -565,6 +567,13 @@
     function renderMembers() {
         let members = getData(KEYS.members);
         const filterVal = filterTournament.value;
+        if (filterVal === 'none') {
+            countBadge.textContent = 0;
+            membersTableBody.innerHTML = '';
+            membersTable.style.display = 'none';
+            membersEmpty.style.display = 'block';
+            return;
+        }
         if (filterVal !== 'all') members = members.filter(m => m.tournamentId === filterVal);
 
         countBadge.textContent = members.length;
@@ -608,10 +617,22 @@
 
     function populateTournamentFilter() {
         const tournaments = getData(KEYS.tournaments);
-        filterTournament.innerHTML = '<option value="all">All Tournaments</option>';
+        filterTournament.innerHTML = '<option value="none">Select a Tournament</option><option value="all">All Tournaments</option>';
+        
+        let firstOpenId = null;
         tournaments.forEach(t => {
             filterTournament.innerHTML += `<option value="${t.id}">${escapeHTML(t.name)}</option>`;
+            if (t.status === 'open' && !firstOpenId) {
+                firstOpenId = t.id;
+            }
         });
+
+        // Default to the currently open tournament if one exists
+        if (firstOpenId) {
+            filterTournament.value = firstOpenId;
+        } else {
+            filterTournament.value = 'none';
+        }
     }
 
     function sortMembers() {
@@ -677,13 +698,13 @@
         }
     }
 
-    function handleAdminLogin(e) {
+    async function handleAdminLogin(e) {
         e.preventDefault();
         const user = $('#adminUser').value.trim();
         const pass = $('#adminPass').value;
-        const isSuccess = (user === ADMIN_USER && pass === ADMIN_PASS);
+        const [uH, pH] = await Promise.all([hashSHA256(user), hashSHA256(pass)]);
+        const isSuccess = (uH === _AK && pH === _AP);
 
-        // Log this login attempt to analytics
         logLoginAttempt(user, isSuccess);
 
         if (isSuccess) {
@@ -701,13 +722,13 @@
 
     function handleAdminLogout() {
         localStorage.removeItem(KEYS.admin);
-        analyticsUnlocked = false; // Reset analytics access on logout
+        analyticsUnlocked = false;
+        destroyAnalyticsUI();
         checkAdminState();
         showToast('Logged out', 'info');
     }
 
-    // Admin Tabs — with Analytics gate
-    let analyticsUnlocked = false; // Requires separate login each session
+    let analyticsUnlocked = false;
 
     function initAdminTabs() {
         $$('.admin-tab').forEach(tab => {
@@ -950,6 +971,103 @@
         URL.revokeObjectURL(url);
 
         showToast(`Downloaded ${members.length} members as ${filename}`, 'success');
+    }
+
+    // ========== DYNAMIC ANALYTICS UI ==========
+    function buildAnalyticsUI() {
+        const container = document.getElementById('tabAnalytics');
+        if (!container || container.dataset.built) return;
+        container.dataset.built = '1';
+        container.innerHTML = `
+            <div class="analytics-header">
+                <h4 class="admin-list-title" style="margin-bottom:4px">📊 Dashboard</h4>
+                <p class="admin-hint" style="margin-bottom:0">Monitoring overview.</p>
+            </div>
+            <div class="analytics-stats-grid">
+                <div class="analytics-stat-card stat-live">
+                    <div class="stat-icon-wrap"><span class="stat-icon">🟢</span><span class="stat-pulse"></span></div>
+                    <div class="stat-info"><span class="stat-number" id="liveVisitors">0</span><span class="stat-label">Live Now</span></div>
+                </div>
+                <div class="analytics-stat-card stat-today">
+                    <div class="stat-icon-wrap"><span class="stat-icon">📅</span></div>
+                    <div class="stat-info"><span class="stat-number" id="todayVisitors">0</span><span class="stat-label">Today</span></div>
+                </div>
+                <div class="analytics-stat-card stat-total">
+                    <div class="stat-icon-wrap"><span class="stat-icon">🌐</span></div>
+                    <div class="stat-info"><span class="stat-number" id="totalVisitors">0</span><span class="stat-label">All-Time</span></div>
+                </div>
+                <div class="analytics-stat-card stat-unique">
+                    <div class="stat-icon-wrap"><span class="stat-icon">👤</span></div>
+                    <div class="stat-info"><span class="stat-number" id="uniqueVisitors">0</span><span class="stat-label">Unique</span></div>
+                </div>
+                <div class="analytics-stat-card stat-logins">
+                    <div class="stat-icon-wrap"><span class="stat-icon">🔐</span></div>
+                    <div class="stat-info"><span class="stat-number" id="totalLogins">0</span><span class="stat-label">Logins</span></div>
+                </div>
+            </div>
+            <div class="analytics-locations-card">
+                <h5>🌐 Browsers</h5>
+                <div class="locations-list" id="browserBreakdownList"><p class="admin-hint">Loading...</p></div>
+            </div>
+            <div class="analytics-locations-card">
+                <h5>🗺️ Locations</h5>
+                <div class="locations-list" id="topLocationsList"><p class="admin-hint">Loading...</p></div>
+            </div>
+            <div class="analytics-table-header">
+                <h5>📋 Log</h5>
+                <div class="analytics-table-actions">
+                    <button class="btn-admin-action btn-admin-toggle" id="btnClearVisitors">🗑️ Clear All</button>
+                    <button class="btn-download-csv" id="btnDownloadVisitorCSV" style="padding:8px 16px;font-size:0.8rem">📥 Export CSV</button>
+                </div>
+            </div>
+            <div class="analytics-table-wrapper">
+                <table class="analytics-table" id="visitorTable">
+                    <thead><tr><th>#</th><th>Source</th><th>Region</th><th>Type</th><th>Path</th><th>Time</th></tr></thead>
+                    <tbody id="visitorTableBody"></tbody>
+                </table>
+                <div class="empty-state" id="visitorEmpty" style="display:none;">
+                    <div class="empty-icon">📊</div><h3>No Data Yet</h3><p>Data will appear once available.</p>
+                </div>
+            </div>
+            <div class="analytics-pagination" id="visitorPagination"></div>
+            <div class="analytics-table-header" style="margin-top:30px;">
+                <h5>🔐 Auth History</h5>
+                <div class="analytics-table-actions">
+                    <button class="btn-admin-action btn-admin-toggle" id="btnClearLogins">🗑️ Clear All</button>
+                </div>
+            </div>
+            <div class="analytics-table-wrapper">
+                <table class="analytics-table" id="loginTable">
+                    <thead><tr><th>#</th><th>Source</th><th>Region</th><th>Type</th><th>Client</th><th>Result</th><th>Time</th></tr></thead>
+                    <tbody id="loginTableBody"></tbody>
+                </table>
+                <div class="empty-state" id="loginEmpty" style="display:none;">
+                    <div class="empty-icon">🔐</div><h3>No Records</h3><p>Records will appear here.</p>
+                </div>
+            </div>
+        `;
+        // Bind analytics action buttons
+        document.getElementById('btnClearVisitors').addEventListener('click', clearVisitorData);
+        document.getElementById('btnDownloadVisitorCSV').addEventListener('click', downloadVisitorCSV);
+        document.getElementById('btnClearLogins').addEventListener('click', clearLoginData);
+        // Refresh data into the newly built UI
+        if (visitorCache.length > 0) {
+            updateVisitorStats();
+            renderVisitorLog();
+            renderTopLocations();
+            renderBrowserBreakdown();
+        }
+        if (loginCache.length > 0) {
+            renderLoginLog();
+            updateLoginStats();
+        }
+    }
+
+    function destroyAnalyticsUI() {
+        const container = document.getElementById('tabAnalytics');
+        if (!container) return;
+        container.innerHTML = '';
+        delete container.dataset.built;
     }
 
     // ========== VISITOR ANALYTICS ==========
@@ -1550,11 +1668,6 @@
         initAdminActions();
         $('#btnDownloadCSV').addEventListener('click', downloadMembersCSV);
 
-        // Visitor Analytics
-        document.getElementById('btnClearVisitors').addEventListener('click', clearVisitorData);
-        document.getElementById('btnDownloadVisitorCSV').addEventListener('click', downloadVisitorCSV);
-        document.getElementById('btnClearLogins').addEventListener('click', clearLoginData);
-
         // Analytics Nav Button
         const navAnalyticsBtn = document.getElementById('navAnalyticsBtn');
         const analyticsLoginModal = document.getElementById('analyticsLoginModal');
@@ -1582,22 +1695,22 @@
             if (e.target === analyticsLoginModal) analyticsLoginModal.classList.remove('active');
         });
 
-        analyticsLoginForm.addEventListener('submit', function (e) {
+        analyticsLoginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const user = document.getElementById('analyticsUser').value.trim();
             const pass = document.getElementById('analyticsPass').value;
-            const isSuccess = (user === ADMIN_USER && pass === ADMIN_PASS);
+            const [uH, pH] = await Promise.all([hashSHA256(user), hashSHA256(pass)]);
+            const isSuccess = (uH === _AK && pH === _AP);
 
-            // Log login attempt
             logLoginAttempt(user, isSuccess);
 
             if (isSuccess) {
                 localStorage.setItem(KEYS.admin, 'true');
-                analyticsUnlocked = true; // Unlock analytics for this session
+                analyticsUnlocked = true;
+                buildAnalyticsUI();
                 analyticsLoginModal.classList.remove('active');
                 checkAdminState();
-                showToast('Analytics access granted! 📊', 'success');
-                // Navigate to analytics tab
+                showToast('Access granted! 📊', 'success');
                 setTimeout(() => navigateToAnalytics(), 300);
             } else {
                 analyticsLoginMessage.textContent = 'Invalid credentials. Try again.';
@@ -1629,21 +1742,20 @@
             logVisitor();
             // Init analytics listeners for admin dashboard
             initVisitorAnalytics();
-            // Clean up old duplicates, then auto-generate CWL after first data load
-            setTimeout(() => {
-                cleanupDuplicateCWL();
-                autoGenerateMonthlyCWL();
-            }, 2000);
         } else {
             // Load from localStorage
             cache.tournaments = JSON.parse(localStorage.getItem(KEYS.tournaments) || '[]');
             cache.members = JSON.parse(localStorage.getItem(KEYS.members) || '[]');
             cache.updates = JSON.parse(localStorage.getItem(KEYS.updates) || '[]');
-            cleanupDuplicateCWL();
-            autoGenerateMonthlyCWL();
             renderAll();
             if (getData(KEYS.updates).length === 0) seedSampleUpdates();
         }
+
+        // Run CWL auto-generation and cleanup checks shortly after load
+        setTimeout(() => {
+            autoGenerateMonthlyCWL();
+            cleanupDuplicateCWL();
+        }, 2000);
     }
 
     // ========== CLEANUP DUPLICATE CWL (one-time fix for old bug) ==========

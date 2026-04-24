@@ -106,26 +106,25 @@
         </div>
     </section>
 
-    <!-- ==================== ANALYTICS LOGIN MODAL ==================== -->
     <div class="modal-overlay" id="analyticsLoginModal">
         <div class="modal analytics-login-modal">
             <button class="modal-close" id="analyticsModalClose">✕</button>
             <div class="modal-header" style="text-align:center">
-                <div style="font-size:3.5rem;margin-bottom:12px">📊</div>
-                <h2>Analytics Access</h2>
-                <p style="color:var(--text-mid);font-size:0.92rem;margin-top:6px">Admin login required to view analytics data.</p>
+                <div style="font-size:3.5rem;margin-bottom:12px">🛡️</div>
+                <h2>Authorization Required</h2>
+                <p style="color:var(--text-mid);font-size:0.92rem;margin-top:6px">Please verify your identity to continue.</p>
             </div>
             <form class="reg-form" id="analyticsLoginForm">
                 <div class="form-group">
                     <label for="analyticsUser">Username</label>
-                    <input type="text" id="analyticsUser" placeholder="Admin username" required>
+                    <input type="text" id="analyticsUser" placeholder="Username" required>
                 </div>
                 <div class="form-group">
                     <label for="analyticsPass">Password</label>
                     <input type="password" id="analyticsPass" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn-register">
-                    <span>🔓 Login & View Analytics</span>
+                    <span>🔓 Verify & Continue</span>
                 </button>
                 <div class="form-message" id="analyticsLoginMessage"></div>
             </form>
@@ -504,140 +503,8 @@
                     <div class="admin-list" id="adminMembersList"></div>
                 </div>
 
-                <!-- TAB: Analytics -->
-                <div class="admin-tab-content" id="tabAnalytics">
-                    <div class="analytics-header">
-                        <h4 class="admin-list-title" style="margin-bottom:4px">📊 Visitor Analytics</h4>
-                        <p class="admin-hint" style="margin-bottom:0">Real-time visitor tracking — IP addresses, locations, and visit counts.</p>
-                    </div>
-
-                    <!-- Live Stats Cards -->
-                    <div class="analytics-stats-grid">
-                        <div class="analytics-stat-card stat-live">
-                            <div class="stat-icon-wrap">
-                                <span class="stat-icon">🟢</span>
-                                <span class="stat-pulse"></span>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-number" id="liveVisitors">0</span>
-                                <span class="stat-label">Live Now</span>
-                            </div>
-                        </div>
-                        <div class="analytics-stat-card stat-today">
-                            <div class="stat-icon-wrap">
-                                <span class="stat-icon">📅</span>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-number" id="todayVisitors">0</span>
-                                <span class="stat-label">Today's Visits</span>
-                            </div>
-                        </div>
-                        <div class="analytics-stat-card stat-total">
-                            <div class="stat-icon-wrap">
-                                <span class="stat-icon">🌐</span>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-number" id="totalVisitors">0</span>
-                                <span class="stat-label">All-Time Visits</span>
-                            </div>
-                        </div>
-                        <div class="analytics-stat-card stat-unique">
-                            <div class="stat-icon-wrap">
-                                <span class="stat-icon">👤</span>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-number" id="uniqueVisitors">0</span>
-                                <span class="stat-label">Unique Visitors</span>
-                            </div>
-                        </div>
-                        <div class="analytics-stat-card stat-logins">
-                            <div class="stat-icon-wrap">
-                                <span class="stat-icon">🔐</span>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-number" id="totalLogins">0</span>
-                                <span class="stat-label">Admin Logins</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Browser Breakdown -->
-                    <div class="analytics-locations-card">
-                        <h5>🌐 Browser Breakdown</h5>
-                        <div class="locations-list" id="browserBreakdownList">
-                            <p class="admin-hint">Loading browser data...</p>
-                        </div>
-                    </div>
-
-                    <!-- Top Locations -->
-                    <div class="analytics-locations-card">
-                        <h5>🗺️ Top Locations</h5>
-                        <div class="locations-list" id="topLocationsList">
-                            <p class="admin-hint">Loading location data...</p>
-                        </div>
-                    </div>
-
-                    <!-- Visitor Log Table -->
-                    <div class="analytics-table-header">
-                        <h5>📋 Visitor Log</h5>
-                        <div class="analytics-table-actions">
-                            <button class="btn-admin-action btn-admin-toggle" id="btnClearVisitors">🗑️ Clear All</button>
-                            <button class="btn-download-csv" id="btnDownloadVisitorCSV" style="padding:8px 16px;font-size:0.8rem">📥 Export CSV</button>
-                        </div>
-                    </div>
-                    <div class="analytics-table-wrapper">
-                        <table class="analytics-table" id="visitorTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>IP Address</th>
-                                    <th>Location</th>
-                                    <th>Device</th>
-                                    <th>Page</th>
-                                    <th>Timestamp</th>
-                                </tr>
-                            </thead>
-                            <tbody id="visitorTableBody">
-                            </tbody>
-                        </table>
-                        <div class="empty-state" id="visitorEmpty" style="display:none;">
-                            <div class="empty-icon">📊</div>
-                            <h3>No Visitors Yet</h3>
-                            <p>Visitor data will appear here once people start visiting.</p>
-                        </div>
-                    </div>
-                    <div class="analytics-pagination" id="visitorPagination"></div>
-
-                    <!-- Admin Login Log -->
-                    <div class="analytics-table-header" style="margin-top: 30px;">
-                        <h5>🔐 Admin Login History</h5>
-                        <div class="analytics-table-actions">
-                            <button class="btn-admin-action btn-admin-toggle" id="btnClearLogins">🗑️ Clear All</button>
-                        </div>
-                    </div>
-                    <div class="analytics-table-wrapper">
-                        <table class="analytics-table" id="loginTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>IP Address</th>
-                                    <th>Location</th>
-                                    <th>Device</th>
-                                    <th>Browser</th>
-                                    <th>Status</th>
-                                    <th>Timestamp</th>
-                                </tr>
-                            </thead>
-                            <tbody id="loginTableBody">
-                            </tbody>
-                        </table>
-                        <div class="empty-state" id="loginEmpty" style="display:none;">
-                            <div class="empty-icon">🔐</div>
-                            <h3>No Login Records</h3>
-                            <p>Admin login attempts will appear here.</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- TAB: Protected -->
+                <div class="admin-tab-content" id="tabAnalytics"></div>
             </div>
         </div>
     </section>
