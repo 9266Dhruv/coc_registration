@@ -854,10 +854,13 @@
                 item.className = 'admin-item admin-member-item';
                 item.innerHTML = `
                     <div class="admin-item-info">
-                        <h5>${escapeHTML(m.name)} (TH${m.th})</h5>
+                        <h5>${escapeHTML(m.name)}</h5>
                         <p>${escapeHTML(m.tag)} · 🏆 ${escapeHTML(m.tournamentName || '?')} · ${escapeHTML(m.cwlType || '—')}</p>
                     </div>
                     <div class="admin-clan-assign">
+                        <select class="clan-input" data-mid="${m.id}" data-field="th" style="max-width: 100px;">
+                            ${[18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8].map(th => `<option value="${th}" ${m.th == th ? 'selected' : ''}>TH ${th}${th==8?' & Below':''}</option>`).join('')}
+                        </select>
                         <input type="text" class="clan-input" data-mid="${m.id}" data-field="tag" placeholder="Clan tag e.g. #ABC" value="${escapeHTML(m.allocatedClan || '')}">
                         <input type="text" class="clan-input" data-mid="${m.id}" data-field="link" placeholder="Clan link (optional)" value="${escapeHTML(m.allocatedClanLink || '')}">
                         <button class="btn-admin-action btn-admin-save" data-id="${m.id}" data-action="save-clan">Save</button>
@@ -902,14 +905,20 @@
                 deleteItem(KEYS.members, id);
                 showToast('Member removed ✅', 'info');
             } else if (action === 'save-clan') {
+                const thInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="th"]`);
                 const tagInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="tag"]`);
                 const linkInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="link"]`);
                 if (tagInput) {
+                    const newTh = thInput ? thInput.value : null;
                     const clanTag = tagInput.value.trim();
                     const clanLink = linkInput ? linkInput.value.trim() : '';
-                    updateItem(KEYS.members, id, { allocatedClan: clanTag, allocatedClanLink: clanLink });
+                    
+                    const updateData = { allocatedClan: clanTag, allocatedClanLink: clanLink };
+                    if (newTh) updateData.th = newTh;
+
+                    updateItem(KEYS.members, id, updateData);
                     const member = getData(KEYS.members).find(x => x.id === id);
-                    showToast(`${member ? member.name : 'Member'} → ${clanTag || 'unassigned'} 🏰`, 'success');
+                    showToast(`Updated ${member ? member.name : 'Member'} ✅`, 'success');
                 }
             }
             if (!firebaseReady) renderAll(); // Firebase listeners handle re-render
