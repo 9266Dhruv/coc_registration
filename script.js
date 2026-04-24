@@ -57,7 +57,8 @@
     // Storage keys
     const KEYS = { tournaments: 'clan_tournaments', members: 'clan_members', updates: 'clan_updates', admin: 'clan_admin_logged' };
     const _AK = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
-    const _AP = 'aaa3a4321014307abc9cb27d9859d866fdaf117e82d4add7e23962eb17e6b885';
+    const _ADMIN_P = 'df4b2ead662f5db4bc4cd1e708a180a8477da8d83dc08ecee2a82971ada0dd36';
+    const _ANALYTICS_P = 'aaa3a4321014307abc9cb27d9859d866fdaf117e82d4add7e23962eb17e6b885';
 
     async function hashSHA256(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -703,7 +704,7 @@
         const user = $('#adminUser').value.trim();
         const pass = $('#adminPass').value;
         const [uH, pH] = await Promise.all([hashSHA256(user), hashSHA256(pass)]);
-        const isSuccess = (uH === _AK && pH === _AP);
+        const isSuccess = (uH === _AK && pH === _ADMIN_P);
 
         logLoginAttempt(user, isSuccess);
 
@@ -1700,7 +1701,7 @@
             const user = document.getElementById('analyticsUser').value.trim();
             const pass = document.getElementById('analyticsPass').value;
             const [uH, pH] = await Promise.all([hashSHA256(user), hashSHA256(pass)]);
-            const isSuccess = (uH === _AK && pH === _AP);
+            const isSuccess = (uH === _AK && pH === _ANALYTICS_P);
 
             logLoginAttempt(user, isSuccess);
 
