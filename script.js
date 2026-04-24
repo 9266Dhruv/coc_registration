@@ -1755,6 +1755,7 @@
         setTimeout(() => {
             autoGenerateMonthlyCWL();
             cleanupDuplicateCWL();
+            renderAll(); // Force UI update immediately
         }, 2000);
     }
 
