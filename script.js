@@ -861,6 +861,7 @@
                         <select class="clan-input" data-mid="${m.id}" data-field="th" style="max-width: 100px;">
                             ${[18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8].map(th => `<option value="${th}" ${m.th == th ? 'selected' : ''}>TH ${th}${th==8?' & Below':''}</option>`).join('')}
                         </select>
+                        <input type="text" class="clan-input" data-mid="${m.id}" data-field="warWeight" placeholder="War Weight" value="${escapeHTML(m.warWeight || '')}" style="max-width: 100px;">
                         <input type="text" class="clan-input" data-mid="${m.id}" data-field="tag" placeholder="Clan tag e.g. #ABC" value="${escapeHTML(m.allocatedClan || '')}">
                         <input type="text" class="clan-input" data-mid="${m.id}" data-field="link" placeholder="Clan link (optional)" value="${escapeHTML(m.allocatedClanLink || '')}">
                         <button class="btn-admin-action btn-admin-save" data-id="${m.id}" data-action="save-clan">Save</button>
@@ -906,15 +907,18 @@
                 showToast('Member removed ✅', 'info');
             } else if (action === 'save-clan') {
                 const thInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="th"]`);
+                const warWeightInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="warWeight"]`);
                 const tagInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="tag"]`);
                 const linkInput = document.querySelector(`.clan-input[data-mid="${id}"][data-field="link"]`);
                 if (tagInput) {
                     const newTh = thInput ? thInput.value : null;
+                    const newWarWeight = warWeightInput ? warWeightInput.value.trim() : null;
                     const clanTag = tagInput.value.trim();
                     const clanLink = linkInput ? linkInput.value.trim() : '';
                     
                     const updateData = { allocatedClan: clanTag, allocatedClanLink: clanLink };
                     if (newTh) updateData.th = newTh;
+                    if (newWarWeight !== null) updateData.warWeight = newWarWeight;
 
                     updateItem(KEYS.members, id, updateData);
                     const member = getData(KEYS.members).find(x => x.id === id);
