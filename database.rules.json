@@ -1,0 +1,28 @@
+{
+  "rules": {
+    "tournaments": {
+      ".read": true,
+      ".write": true
+    },
+    "members": {
+      ".read": true,
+      ".write": true
+    },
+    "updates": {
+      ".read": true,
+      ".write": true
+    },
+    "visitors": {
+      ".read": true,
+      ".write": true
+    },
+    "live_visitors": {
+      ".read": true,
+      ".write": true
+    },
+    "admin_logins": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

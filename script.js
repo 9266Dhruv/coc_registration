@@ -1147,9 +1147,9 @@
         // Now try to enrich with geolocation data (async, non-blocking)
         try {
             const geoApis = [
-                { url: 'https://ipwho.is/', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country, cc: d.country_code }) },
-                { url: 'https://freeipapi.com/api/json', parse: d => ({ ip: d.ipAddress, city: d.cityName, region: d.regionName, country: d.countryName, cc: d.countryCode }) },
-                { url: 'https://ipapi.co/json/', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country_name, cc: d.country_code }) }
+                { url: 'https://ipapi.co/json/', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country_name, cc: d.country_code }) },
+                { url: 'https://ipinfo.io/json?token=', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country, cc: d.country }) },
+                { url: 'https://api.ipify.org?format=json', parse: d => ({ ip: d.ip, city: '', region: '', country: '', cc: '' }) }
             ];
 
             for (const api of geoApis) {
@@ -1343,8 +1343,8 @@
         // Enrich with geo data asynchronously
         try {
             const geoApis = [
-                { url: 'https://ipwho.is/', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country, cc: d.country_code }) },
-                { url: 'https://freeipapi.com/api/json', parse: d => ({ ip: d.ipAddress, city: d.cityName, region: d.regionName, country: d.countryName, cc: d.countryCode }) }
+                { url: 'https://ipapi.co/json/', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country_name, cc: d.country_code }) },
+                { url: 'https://ipinfo.io/json?token=', parse: d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country, cc: d.country }) }
             ];
             for (const api of geoApis) {
                 try {
